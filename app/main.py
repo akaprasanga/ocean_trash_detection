@@ -8,7 +8,7 @@ import torch
 
 # setup the webserver
 # port may need to be changed if there are multiple flask servers running on same server
-port = 12345
+port = 12356
 base_url = get_base_url(port)
 
 # if the base url is not empty, then the server is running in development, and we need to specify the static folder so that the static files are served
@@ -58,6 +58,7 @@ def uploaded_file(filename):
     here = os.getcwd()
     image_path = os.path.join(here, app.config['UPLOAD_FOLDER'], filename)
     results = model(image_path, size=416)
+    print("file uploaded:", image_path)
     if len(results.pandas().xyxy) > 0:
         results.print()
         save_dir = os.path.join(here, app.config['UPLOAD_FOLDER'])
@@ -92,22 +93,26 @@ def uploaded_file(filename):
                                filename=filename)
     else:
         found = False
-        return render_template('results.html', labels='No Emotion', old_filename=filename, filename=filename)
+        return render_template('results.html', labels='No Detection', old_filename=filename, filename=filename)
 
 
 @app.route(f'{base_url}/uploads/<path:filename>')
 def files(filename):
     return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
 
+# @app.route(f'{base_url}/results/#home')
+# def team_members():
+#     return render_template('home.html')
+
 # define additional routes here
 # for example:
-# @app.route(f'{base_url}/team_members')
+#@app.route(f'{base_url}/team_members')
 # def team_members():
 #     return render_template('team_members.html') # would need to actually make this page
 
 if __name__ == '__main__':
     # IMPORTANT: change url to the site where you are editing this file.
-    website_url = 'url'
+    website_url = 'https://cocalcg1.ai-camp.dev'
     
     print(f'Try to open\n\n    https://{website_url}' + base_url + '\n\n')
     app.run(host = '0.0.0.0', port=port, debug=True)
